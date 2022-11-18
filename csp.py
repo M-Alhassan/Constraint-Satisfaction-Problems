@@ -133,18 +133,6 @@ def select_unassigned_variable(csp, assignment, current_domains):
     return None
 
 
-    # This could be an alternative way for MRV but it causes max rexursion depth error for me
-
-    # current_var = list(csp.variables)[0]
-    # for var in list(csp.variables):
-    #     if var not in list(assignment.keys()):
-    #         if len(current_domains[var]) < len(current_domains[current_var]):
-    #                     current_var = var
-    #     return current_var
-
-
-
-
 # Helper function for backtracking to check consistency of variable and value with assignment
 def check_consistency(csp, var, value, assignment):
     for variable in list(assignment.keys()):
@@ -167,18 +155,27 @@ def recursive_backtracking(csp, assignment={},current_domains=None):
     # select a variable using MRV
     var = select_unassigned_variable(csp, assignment, dom)
     
+    queue = set()
+    var_neighbors = csp.adjacency[var]
+    unassigned_neighbors_of_var = []
+
+    for neighbor in var_neighbors:
+        if neighbor not in assignment:
+            unassigned_neighbors_of_var.append(neighbor)
+
+    for neighbor in unassigned_neighbors_of_var:
+        queue.add((var,neighbor))
+        queue.add((neighbor, var))
+    
     for value in csp.domains[var]:
         if check_consistency(csp, var, value, assignment):
             assignment[var] = value
-            inferences = ac3(csp, arcs_queue=None, current_domains=dom, assignment=assignment)
+            dom[var] = [value]
+            inferences = ac3(csp, arcs_queue=queue, current_domains=dom, assignment=assignment)
             if inferences[0]:
-                dom[var] = inferences[1][var]
-                result = recursive_backtracking(csp, assignment, dom)
+                result = recursive_backtracking(csp, assignment, inferences[1])
                 if result != None:
                     return result
-                ac3_dom = copy.deepcopy(inferences[1])
-                for val in ac3_dom[var]:
-                    dom[var].remove(val)
             assignment.pop(var)
     return None
     
