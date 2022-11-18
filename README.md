@@ -33,7 +33,7 @@ Solving CSPs (Constraint Satisfaction Problems) using backtracking algorithm wit
 ## 🔧 Installation
 
 1. Install newest version of [Python](https://www.python.org/)
-2. Run ```test_runner.py```
+2. Run ```test_csp.py``` for map coloring problem
 
 ## ✒️ Author
 
